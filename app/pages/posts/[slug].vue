@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { getPostBySlug, getRelatedPosts } from '~/data/posts'
+import { getPostBySlug } from '~/data/posts'
 import { 
   ChevronRight, 
   Share2, 
@@ -13,38 +13,126 @@ import {
   AlertCircle, 
   CheckCircle2, 
   ArrowLeft,
-  Bookmark
+  Bookmark,
+  Copy,
+  X,
+  ExternalLink,
+  MessageCircle
 } from 'lucide-vue-next'
 
 const route = useRoute()
 const slug = computed(() => route.params.slug as string)
 const post = computed(() => getPostBySlug(slug.value))
-const relatedPosts = computed(() => getRelatedPosts(slug.value))
 
-const shareSuccess = ref(false)
+const requestUrl = useRequestURL()
+
+// Configuration Open Graph & Meta pour le partage sur les réseaux sociaux (WhatsApp, LinkedIn, Twitter/X, etc.)
+useSeoMeta({
+  title: () => post.value ? `${post.value.title} — Eden Research & Dev` : 'Eden Research & Dev',
+  ogTitle: () => post.value ? post.value.title : 'Eden Research & Dev',
+  description: () => post.value 
+    ? `Département technique de Grow Tech | Eden Research & Dev : ${post.value.subtitle}` 
+    : 'Département technique de Grow Tech : analyses technologiques approfondies et prospective.',
+  ogDescription: () => post.value 
+    ? `Département technique de Grow Tech | Eden Research & Dev : ${post.value.subtitle}` 
+    : 'Département technique de Grow Tech : analyses technologiques approfondies et prospective.',
+  ogImage: () => {
+    if (!post.value) return `${requestUrl.origin}/images/ai-education.jpg`
+    return post.value.coverImage.startsWith('http') 
+      ? post.value.coverImage 
+      : `${requestUrl.origin}${post.value.coverImage}`
+  },
+  ogUrl: () => `${requestUrl.origin}/posts/${post.value?.slug || ''}`,
+  ogType: 'article',
+  ogSiteName: 'Eden Research & Dev — Département technique de Grow Tech',
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => post.value ? post.value.title : 'Eden Research & Dev',
+  twitterDescription: () => post.value 
+    ? `Département technique de Grow Tech | Eden Research & Dev : ${post.value.subtitle}` 
+    : 'Département technique de Grow Tech',
+  twitterImage: () => {
+    if (!post.value) return `${requestUrl.origin}/images/ai-education.jpg`
+    return post.value.coverImage.startsWith('http') 
+      ? post.value.coverImage 
+      : `${requestUrl.origin}${post.value.coverImage}`
+  },
+  articleAuthor: () => ["Meva'a Olivier (Département technique de Grow Tech)"],
+})
+
+// État du partage
+const isShareModalOpen = ref(false)
+const shareCopied = ref(false)
+
+const getFullShareUrl = () => {
+  if (import.meta.client) {
+    return window.location.href
+  }
+  return `${requestUrl.origin}/posts/${post.value?.slug || ''}`
+}
 
 const handleShare = async () => {
   if (!post.value) return
 
-  const shareData = {
-    title: post.value.title,
-    text: post.value.subtitle,
-    url: window.location.href,
-  }
+  const url = getFullShareUrl()
+  const title = post.value.title
+  const text = `${post.value.title}\n\nDépartement technique de Grow Tech — Eden Research & Dev\n\n${post.value.subtitle}\n`
 
+  // Si le navigateur mobile supporte l'API native (WhatsApp, SMS, etc.)
   if (navigator?.share) {
     try {
-      await navigator.share(shareData)
+      await navigator.share({
+        title,
+        text,
+        url,
+      })
+      return
     } catch {
-      // User dismissed
+      // Annulé par l'utilisateur ou non supporté
     }
-  } else if (navigator?.clipboard) {
-    navigator.clipboard.writeText(window.location.href)
-    shareSuccess.value = true
+  }
+
+  // Sinon affichage du modal de partage avec options directes
+  isShareModalOpen.value = true
+}
+
+const copyShareLink = async () => {
+  const url = getFullShareUrl()
+  if (navigator?.clipboard) {
+    await navigator.clipboard.writeText(url)
+    shareCopied.value = true
     setTimeout(() => {
-      shareSuccess.value = false
+      shareCopied.value = false
     }, 2500)
   }
+}
+
+const copyFormattedText = async () => {
+  const url = getFullShareUrl()
+  const formatted = `${post.value?.title}\n\nDépartement technique de Grow Tech — Eden Research & Dev\n${post.value?.subtitle}\n\nLire l'article complet : ${url}`
+  if (navigator?.clipboard) {
+    await navigator.clipboard.writeText(formatted)
+    shareCopied.value = true
+    setTimeout(() => {
+      shareCopied.value = false
+    }, 2500)
+  }
+}
+
+const shareToWhatsApp = () => {
+  const url = getFullShareUrl()
+  const text = `*${post.value?.title}*\n\n_Département technique de Grow Tech • Eden Research & Dev_\n\n${post.value?.subtitle}\n\nLire l'analyse : ${url}`
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank')
+}
+
+const shareToLinkedIn = () => {
+  const url = getFullShareUrl()
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank')
+}
+
+const shareToTwitter = () => {
+  const url = getFullShareUrl()
+  const text = `${post.value?.title} — Département technique de Grow Tech`
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank')
 }
 </script>
 
@@ -101,11 +189,11 @@ const handleShare = async () => {
         <div class="flex items-center gap-2">
           <button 
             @click="handleShare"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-all active:scale-95 shadow-xs"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-semibold transition-all active:scale-95 shadow-xs cursor-pointer"
             title="Partager cet article"
           >
-            <component :is="shareSuccess ? Check : Share2" class="w-3.5 h-3.5" :class="shareSuccess ? 'text-emerald-600' : 'text-gray-500'" />
-            <span>{{ shareSuccess ? 'Lien copié !' : 'Partager' }}</span>
+            <component :is="shareCopied ? Check : Share2" class="w-3.5 h-3.5" :class="shareCopied ? 'text-emerald-600' : 'text-gray-500'" />
+            <span>{{ shareCopied ? 'Lien copié !' : 'Partager' }}</span>
           </button>
         </div>
 
@@ -281,7 +369,6 @@ const handleShare = async () => {
       <!-- Conclusion Card -->
       <div class="my-14 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-blue-50/60 to-indigo-50/40 border border-blue-200/60 space-y-4">
         <div class="flex items-center gap-2 text-blue-700 text-xs font-bold uppercase tracking-wider">
-          <Sparkles class="w-4 h-4" />
           <span>Synthèse &amp; Conclusion</span>
         </div>
         
@@ -328,35 +415,102 @@ const handleShare = async () => {
 
     </article>
 
-    <!-- Related Stories Section (Google The Keyword style) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 border-t border-gray-100">
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <span class="text-xs font-bold uppercase tracking-wider text-blue-600">À explorer également</span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-            Publications recommandées
-          </h2>
-        </div>
-        <NuxtLink 
-          to="/" 
-          class="inline-flex items-center gap-1 text-sm font-semibold text-blue-600 hover:underline"
-        >
-          <span>Voir tout le catalogue</span>
-          <ChevronRight class="w-4 h-4" />
-        </NuxtLink>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-        <PostCard 
-          v-for="relPost in relatedPosts" 
-          :key="relPost.id" 
-          :post="relPost" 
-        />
-      </div>
-    </section>
 
     <!-- Newsletter Box -->
     <NewsletterBox />
+
+    <!-- Share Modal Dialog -->
+    <div 
+      v-if="isShareModalOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-fadeIn"
+      @click.self="isShareModalOpen = false"
+    >
+      <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl border border-gray-100 relative space-y-6">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-2 border-b border-gray-100">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Share2 class="w-4 h-4" />
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-gray-900 leading-tight">Partager cette publication</h3>
+              <p class="text-xs text-gray-500">Département technique de Grow Tech</p>
+            </div>
+          </div>
+          <button 
+            @click="isShareModalOpen = false"
+            class="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <X class="w-5 h-5" />
+          </button>
+        </div>
+
+        <!-- Social Share Grid -->
+        <div class="grid grid-cols-3 gap-3">
+          <!-- WhatsApp (Top priority in Africa/Cameroon) -->
+          <button 
+            @click="shareToWhatsApp"
+            class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 transition-all border border-emerald-100 hover:scale-[1.02] cursor-pointer"
+          >
+            <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+              <MessageCircle class="w-5 h-5" />
+            </div>
+            <span class="text-xs font-bold">WhatsApp</span>
+          </button>
+
+          <!-- LinkedIn -->
+          <button 
+            @click="shareToLinkedIn"
+            class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-800 transition-all border border-blue-100 hover:scale-[1.02] cursor-pointer"
+          >
+            <div class="w-10 h-10 rounded-full bg-[#0077b5] text-white flex items-center justify-center shadow-xs">
+              <ExternalLink class="w-5 h-5" />
+            </div>
+            <span class="text-xs font-bold">LinkedIn</span>
+          </button>
+
+          <!-- X / Twitter -->
+          <button 
+            @click="shareToTwitter"
+            class="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl bg-gray-50 hover:bg-gray-100 text-gray-800 transition-all border border-gray-200 hover:scale-[1.02] cursor-pointer"
+          >
+            <div class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-xs">
+              <span class="font-black text-sm">𝕏</span>
+            </div>
+            <span class="text-xs font-bold">X (Twitter)</span>
+          </button>
+        </div>
+
+        <!-- Copy Link & Copy Formatted Post Actions -->
+        <div class="space-y-2.5 pt-2 border-t border-gray-100">
+          <!-- Direct URL Copy -->
+          <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-2xl p-2 pl-3.5">
+            <input 
+              :value="getFullShareUrl()" 
+              readonly 
+              class="w-full bg-transparent text-xs text-gray-600 focus:outline-none select-all"
+            />
+            <button 
+              @click="copyShareLink"
+              class="px-4 py-2 rounded-xl bg-gray-900 hover:bg-blue-600 text-white text-xs font-semibold shrink-0 transition-colors cursor-pointer"
+            >
+              {{ shareCopied ? 'Copié !' : 'Copier' }}
+            </button>
+          </div>
+
+          <!-- Copy formatted paragraph with Grow Tech & Department name -->
+          <button 
+            @click="copyFormattedText"
+            class="w-full py-2.5 px-4 rounded-2xl border border-dashed border-gray-300 hover:border-blue-500 bg-white hover:bg-blue-50/50 text-xs text-gray-700 font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          >
+            <Copy class="w-3.5 h-3.5 text-blue-600" />
+            <span>Copier le texte formaté avec Grow Tech</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
 
   </div>
 

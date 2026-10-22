@@ -48,6 +48,41 @@
   border-radius: 32px;
 }
 
+.google-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #dadce0;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #3c4043;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.google-pill-btn:hover {
+  background-color: #f8f9fa;
+  border-color: #bdc1c6;
+  color: #1a73e8;
+  transform: translateY(-1px);
+}
+
+.google-pill-btn-blue {
+  background-color: #1a73e8;
+  color: #ffffff;
+  border: 1px solid transparent;
+}
+
+.google-pill-btn-blue:hover {
+  background-color: #1557b0;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.35);
+}
+
 /* Audio Waveform Animation */
 @keyframes audio-wave {
   0%, 100% {

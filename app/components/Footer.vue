@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Globe, Github, Twitter, Linkedin, Sparkles } from 'lucide-vue-next'
+import { Globe, Github, Twitter, Linkedin } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -9,23 +9,20 @@ import { Globe, Github, Twitter, Linkedin, Sparkles } from 'lucide-vue-next'
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
         <!-- Brand column -->
         <div class="md:col-span-2 space-y-4">
-          <NuxtLink to="/" class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-              E
-            </div>
-            <span class="font-extrabold text-gray-900 text-lg">
-              Eden Research &amp; Dev
-            </span>
+          <NuxtLink to="/" class="flex items-center gap-3">
+            <img 
+              src="/logoEden.png" 
+              alt="Eden Research & Dev" 
+              class="h-14 sm:h-20 w-auto object-contain"
+            />
           </NuxtLink>
-          <p class="text-sm text-gray-500 max-w-sm leading-relaxed">
-            Laboratoire exploratoire indépendant dédié à la veille, l'analyse systémique, l'ingénierie du code et le développement de compétences de nouvelle génération.
-          </p>
-          <div class="flex items-center gap-3 text-xs font-medium text-gray-500 pt-2">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Plateforme active
-            </span>
-            <span>Version MVP 1.0</span>
+          <div class="space-y-1">
+            <p class="text-sm font-medium text-gray-700">
+              Département technique
+            </p>
+            <p class="text-xs text-gray-500">
+              Propulsé par <b class="font-semibold text-gray-800">Grow Tech</b>
+            </p>
           </div>
         </div>
 
@@ -50,7 +47,7 @@ import { Globe, Github, Twitter, Linkedin, Sparkles } from 'lucide-vue-next'
             </li>
             <li>
               <NuxtLink to="/posts/intelligence-artificielle-milieu-scolaire" class="hover:text-blue-600 transition-colors">
-                Dossier : IA à l'école
+                Dossier : IA &amp; Éducation en Afrique
               </NuxtLink>
             </li>
           </ul>

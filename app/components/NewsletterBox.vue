@@ -25,10 +25,6 @@ const subscribe = () => {
       <div class="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-emerald-100/50 blur-3xl pointer-events-none"></div>
 
       <div class="relative z-10 max-w-2xl mx-auto">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100/70 text-blue-700 text-xs font-semibold mb-4">
-          <Sparkles class="w-3.5 h-3.5" />
-          <span>Veille &amp; Prospective Technologique</span>
-        </div>
 
         <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mb-3">
           Recevez les dernières publications d'Eden R&amp;D

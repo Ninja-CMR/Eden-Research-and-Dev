@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Sparkles, Menu, X, ArrowUpRight, Search } from 'lucide-vue-next'
-
 const isMobileMenuOpen = ref(false)
 const isNewsletterOpen = ref(false)
 const emailInput = ref('')
 const subscribed = ref(false)
+
 
 const handleSubscribe = () => {
   if (emailInput.value) {
@@ -22,19 +22,15 @@ const handleSubscribe = () => {
 <template>
   <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-gray-100 transition-all">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-18">
+      <div class="flex items-center justify-between h-16 sm:h-20">
         
         <!-- Brand Logo -->
-        <NuxtLink to="/" class="flex items-center gap-3 group">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-blue-500 to-emerald-500 flex items-center justify-center text-white shadow-sm shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
-            <span class="font-bold text-lg tracking-wider">E</span>
-          </div>
-          <div class="flex flex-col">
-            <span class="font-extrabold text-gray-900 text-lg tracking-tight flex items-center gap-1.5">
-              Eden <span class="text-blue-600 font-semibold text-sm px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-100">R&amp;D</span>
-            </span>
-            <span class="text-xs text-gray-500 font-medium">Analyses • Codes • Skills</span>
-          </div>
+        <NuxtLink to="/" class="flex items-center gap-3 group py-1" title="Accueil Eden Research & Dev">
+          <img 
+            src="/logoEden.png" 
+            alt="Eden Research & Dev" 
+            class="h-11 sm:h-14 w-auto object-contain transition-transform group-hover:scale-105"
+          />
         </NuxtLink>
 
         <!-- Desktop Navigation Categories -->
@@ -61,7 +57,6 @@ const handleSubscribe = () => {
             to="/posts/intelligence-artificielle-milieu-scolaire" 
             class="px-4 py-2 rounded-full text-sm font-medium text-blue-700 bg-blue-50/70 hover:bg-blue-100/70 transition-colors flex items-center gap-1"
           >
-            <Sparkles class="w-3.5 h-3.5 text-blue-600" />
             <span>À la une</span>
           </NuxtLink>
         </nav>
@@ -126,7 +121,7 @@ const handleSubscribe = () => {
         @click="isMobileMenuOpen = false"
         class="block px-4 py-3 rounded-2xl text-base font-medium text-blue-700 bg-blue-50"
       >
-        À la une : IA en milieu scolaire
+        À la une : IA &amp; Éducation en Afrique
       </NuxtLink>
       <div class="pt-2">
         <button 

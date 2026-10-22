@@ -1,233 +1,174 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { POSTS, type PostCategory } from '~/data/posts'
-import { Search, Sparkles, Filter, BookOpen, Code, Compass, ArrowRight, Clock } from 'lucide-vue-next'
+import { POSTS } from '~/data/posts'
+import { 
+  ArrowRight, 
+  ArrowUpRight, 
+  CheckCircle2, 
+  Mail 
+} from 'lucide-vue-next'
 
-const route = useRoute()
+const requestUrl = useRequestURL()
 
-// Active filter category
-const selectedCategory = ref<string>((route.query.filter as string) || 'all')
-const searchQuery = ref<string>('')
-
-// Featured post is the main article (IA en milieu scolaire)
-const featuredPost = computed(() => POSTS.find(p => p.featured) || POSTS[0])
-
-// Filtered posts for the catalogue
-const filteredPosts = computed(() => {
-  return POSTS.filter(post => {
-    // Category match
-    const matchesCategory = selectedCategory.value === 'all' || post.type === selectedCategory.value
-    // Search query match
-    const query = searchQuery.value.toLowerCase().trim()
-    const matchesSearch = !query || 
-      post.title.toLowerCase().includes(query) ||
-      post.subtitle.toLowerCase().includes(query) ||
-      post.tags.some(t => t.toLowerCase().includes(query)) ||
-      post.excerpt.toLowerCase().includes(query)
-    
-    return matchesCategory && matchesSearch
-  })
+// Featured article on AI in education
+const heroPost = computed(() => {
+  return POSTS.find(p => p.slug === 'intelligence-artificielle-milieu-scolaire') || POSTS[0]
 })
 
-const setCategory = (cat: string) => {
-  selectedCategory.value = cat
+useSeoMeta({
+  title: 'Eden Research & Dev — Département technique de Grow Tech',
+  ogTitle: 'Eden Research & Dev — Département technique de Grow Tech',
+  description: 'Département technique de Grow Tech : laboratoire de recherche appliquée et prospective technologique en IA et ingénierie logicielle.',
+  ogDescription: 'Département technique de Grow Tech : laboratoire de recherche appliquée et prospective technologique en IA et ingénierie logicielle.',
+  ogImage: () => `${requestUrl.origin}/images/ai-education.jpg`,
+  ogUrl: () => requestUrl.origin,
+  ogType: 'website',
+  ogSiteName: 'Eden Research & Dev — Département technique de Grow Tech',
+  twitterCard: 'summary_large_image',
+  twitterTitle: 'Eden Research & Dev — Département technique de Grow Tech',
+  twitterDescription: 'Département technique de Grow Tech : analyses technologiques approfondies et prospective.',
+  twitterImage: () => `${requestUrl.origin}/images/ai-education.jpg`,
+})
+
+// Newsletter inline state
+const inlineEmail = ref('')
+const inlineSuccess = ref(false)
+
+const handleInlineSubscribe = () => {
+  if (inlineEmail.value) {
+    inlineSuccess.value = true
+    setTimeout(() => {
+      inlineSuccess.value = false
+      inlineEmail.value = ''
+    }, 4000)
+  }
 }
 </script>
 
 <template>
-  <div>
-    <!-- Hero Banner / Featured Story (Google The Keyword Style) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
-      <div class="relative bg-gradient-to-br from-[#f8fafd] to-[#f1f5f9] border border-gray-200/80 rounded-3xl overflow-hidden p-6 sm:p-10 lg:p-12 shadow-xs">
+  <div class="space-y-16 lg:space-y-24 pb-20">
+
+    <!-- 1. HERO SECTION (Focus exclusif : IA en milieu scolaire) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <!-- Text Content -->
-          <div class="lg:col-span-7 space-y-4">
-            
+        <!-- Left Hero Card: Soft Pastel Ice-Blue Background -->
+        <div class="lg:col-span-7 bg-[#eef3fc] rounded-[32px] p-6 sm:p-10 lg:p-12 flex flex-col justify-between border border-[#dbe6f6] shadow-xs relative overflow-hidden transition-all duration-300">
+          
+          <div class="space-y-5">
+            <!-- Category Tag Pill -->
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 tracking-wide uppercase">
-                <Sparkles class="w-3.5 h-3.5 text-blue-600" />
-                Publication Majeure
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-white/90 text-blue-700 shadow-xs border border-blue-100">
+                {{ heroPost.categoryLabel }}
               </span>
               <span class="text-xs text-gray-400">•</span>
-              <span class="text-xs text-gray-500 font-medium">{{ featuredPost.readTime }}</span>
+              <span class="text-xs font-semibold text-gray-500">{{ heroPost.readTime }}</span>
             </div>
 
-            <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight leading-[1.15]">
-              <NuxtLink :to="`/posts/${featuredPost.slug}`" class="hover:text-blue-600 transition-colors">
-                {{ featuredPost.title }}
+            <!-- Massive Editorial Title -->
+            <h1 class="text-2xl sm:text-4xl lg:text-[44px] font-extrabold text-gray-900 tracking-tight leading-[1.14]">
+              <NuxtLink :to="`/posts/${heroPost.slug}`" class="hover:text-blue-600 transition-colors">
+                {{ heroPost.title }}
               </NuxtLink>
             </h1>
 
-            <p class="text-base sm:text-lg text-gray-600 leading-relaxed font-normal">
-              {{ featuredPost.subtitle }}
+            <!-- Subtitle / Excerpt -->
+            <p class="text-sm sm:text-base text-gray-600 leading-relaxed font-normal">
+              {{ heroPost.subtitle }}
             </p>
-
-            <!-- Meta Author & CTA -->
-            <div class="pt-4 flex flex-wrap items-center gap-4">
-              <div class="flex items-center gap-3">
-                <img 
-                  :src="featuredPost.author.avatar" 
-                  :alt="featuredPost.author.name" 
-                  class="w-10 h-10 rounded-full object-cover ring-2 ring-white shadow-xs"
-                />
-                <div>
-                  <div class="font-bold text-gray-900 text-sm">{{ featuredPost.author.name }}</div>
-                  <div class="text-xs text-gray-500">{{ featuredPost.publishedAt }}</div>
-                </div>
-              </div>
-
-              <NuxtLink 
-                :to="`/posts/${featuredPost.slug}`"
-                class="ml-auto inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20"
-              >
-                <span>Lire l'analyse complète</span>
-                <ArrowRight class="w-4 h-4" />
-              </NuxtLink>
-            </div>
-
           </div>
 
-          <!-- Featured Image Card -->
-          <div class="lg:col-span-5">
-            <NuxtLink :to="`/posts/${featuredPost.slug}`" class="block group relative aspect-[16/11] rounded-2xl overflow-hidden shadow-lg bg-gray-100 border border-gray-200/50">
-              <img 
-                :src="featuredPost.coverImage" 
-                :alt="featuredPost.title"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              <div class="absolute inset-0 bg-gradient-to-t from-gray-950/20 via-transparent to-transparent"></div>
+          <!-- Bottom Action: CTA -->
+          <div class="pt-8 sm:pt-10 flex items-center justify-between border-t border-blue-200/50 mt-6">
+            <NuxtLink 
+              :to="`/posts/${heroPost.slug}`"
+              class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 active:scale-95 transition-all shadow-md shadow-blue-600/20"
+            >
+              <span>Lire l'analyse complète</span>
+              <ArrowRight class="w-4 h-4" />
             </NuxtLink>
           </div>
+
+        </div>
+
+        <!-- Right Hero Card: Large Visual Presentation with Rounded Corners -->
+        <div class="lg:col-span-5 bg-gradient-to-tr from-[#1a73e8] to-[#60a5fa] rounded-[32px] overflow-hidden relative shadow-md group min-h-[340px] lg:min-h-auto">
+          <NuxtLink :to="`/posts/${heroPost.slug}`" class="block w-full h-full relative">
+            <img 
+              :src="heroPost.coverImage" 
+              :alt="heroPost.title"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            />
+            
+            <!-- Soft gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-950/60 via-transparent to-transparent"></div>
+
+            <!-- Floating Pill Badge on Image -->
+            <div class="absolute bottom-5 left-5 right-5 flex items-center justify-between text-white">
+              <div class="flex items-center gap-2 backdrop-blur-md bg-black/40 px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-medium">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Édition Spéciale Eden R&amp;D</span>
+              </div>
+              <div class="backdrop-blur-md bg-white/20 hover:bg-white/30 text-white p-2 rounded-full border border-white/30 transition-all">
+                <ArrowUpRight class="w-4 h-4" />
+              </div>
+            </div>
+          </NuxtLink>
         </div>
 
       </div>
     </section>
 
-    <!-- Catalogue & Filtering Section -->
-    <section id="catalogue" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      
-      <!-- Filter Bar -->
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4 pb-8 border-b border-gray-100">
+    <!-- 2. NEWSLETTER SUBSCRIPTION BANNER (Google Inbox Banner Style) -->
+    <section class="max-w-5xl mx-auto px-4 sm:px-6">
+      <div class="relative overflow-hidden rounded-[32px] bg-gradient-to-b from-[#fef9f3] to-[#faf3e8] border border-[#f2e6d5] p-8 sm:p-12 text-center shadow-xs">
         
-        <!-- Category Pills -->
-        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          <button 
-            @click="setCategory('all')"
-            class="px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all"
-            :class="selectedCategory === 'all' ? 'bg-gray-900 text-white shadow-xs' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
-          >
-            Tous les formats ({{ POSTS.length }})
-          </button>
+        <!-- Soft decorative circles -->
+        <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-amber-100/60 blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-blue-100/50 blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-2xl mx-auto space-y-4">
           
-          <button 
-            @click="setCategory('analysis')"
-            class="px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5"
-            :class="selectedCategory === 'analysis' ? 'bg-blue-600 text-white shadow-xs' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'"
-          >
-            <BookOpen class="w-3.5 h-3.5" />
-            <span>Analyses</span>
-          </button>
+          <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight">
+            Recevez les publications d'Eden R&amp;D dans votre boîte mail
+          </h2>
 
-          <button 
-            @click="setCategory('code')"
-            class="px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5"
-            :class="selectedCategory === 'code' ? 'bg-purple-600 text-white shadow-xs' : 'bg-purple-50 text-purple-700 hover:bg-purple-100'"
-          >
-            <Code class="w-3.5 h-3.5" />
-            <span>Codes &amp; Scripts</span>
-          </button>
+          <p class="text-sm sm:text-base text-gray-600 leading-relaxed max-w-xl mx-auto">
+            Une sélection hebdomadaire rigoureuse : dossiers d'impact, architectures de sécurité et méthodes d'apprentissage prêtes à l'emploi.
+          </p>
 
-          <button 
-            @click="setCategory('skill')"
-            class="px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5"
-            :class="selectedCategory === 'skill' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
-          >
-            <Sparkles class="w-3.5 h-3.5" />
-            <span>Skills &amp; Méthodes</span>
-          </button>
-        </div>
-
-        <!-- Search input -->
-        <div class="relative w-full md:w-72">
-          <Search class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          <input 
-            v-model="searchQuery"
-            type="text"
-            placeholder="Rechercher une analyse, un tag..."
-            class="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 bg-gray-50/50"
-          />
-        </div>
-
-      </div>
-
-      <!-- Articles Grid -->
-      <div v-if="filteredPosts.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pt-8">
-        <PostCard 
-          v-for="post in filteredPosts" 
-          :key="post.id" 
-          :post="post" 
-        />
-      </div>
-
-      <!-- Empty state if search yields no result -->
-      <div v-else class="text-center py-16">
-        <div class="w-12 h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-3">
-          <Search class="w-6 h-6" />
-        </div>
-        <h3 class="text-base font-bold text-gray-900 mb-1">Aucune publication trouvée</h3>
-        <p class="text-xs text-gray-500 mb-4">Essayez un autre mot-clé ou réinitialisez les filtres.</p>
-        <button 
-          @click="selectedCategory = 'all'; searchQuery = ''"
-          class="px-4 py-2 rounded-full bg-gray-900 text-white text-xs font-semibold"
-        >
-          Réinitialiser les filtres
-        </button>
-      </div>
-
-    </section>
-
-    <!-- Lab Philosophy Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="rounded-3xl bg-[#f8f9fa] border border-gray-200/80 p-8 sm:p-12">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          <div class="space-y-3">
-            <div class="w-10 h-10 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-              1
+          <!-- Form matching Google's clean pill input -->
+          <form v-if="!inlineSuccess" @submit.prevent="handleInlineSubscribe" class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
+            <div class="relative w-full">
+              <Mail class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input 
+                v-model="inlineEmail"
+                type="email" 
+                required
+                placeholder="votre.email@domaine.com" 
+                class="w-full pl-11 pr-4 py-3.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 bg-white text-sm text-gray-900 shadow-xs"
+              />
             </div>
-            <h3 class="font-bold text-gray-900 text-lg">Analyses Systémiques</h3>
-            <p class="text-sm text-gray-600 leading-relaxed">
-              Décrypter les mutations de l'IA sans parti-pris : impacts réels, dilemmes sociétaux et prospective technologique documentée.
-            </p>
+            <button 
+              type="submit"
+              class="w-full sm:w-auto px-8 py-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all shadow-md shadow-blue-600/20 active:scale-95 whitespace-nowrap cursor-pointer"
+            >
+              S'inscrire
+            </button>
+          </form>
+
+          <div v-else class="p-4 rounded-2xl bg-emerald-100/80 border border-emerald-200 text-emerald-800 text-sm font-semibold inline-flex items-center gap-2">
+            <CheckCircle2 class="w-5 h-5 text-emerald-600" />
+            <span>Merci ! Vous recevrez nos prochaines analyses par e-mail.</span>
           </div>
 
-          <div class="space-y-3">
-            <div class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-              2
-            </div>
-            <h3 class="font-bold text-gray-900 text-lg">Codes Source Ouverts</h3>
-            <p class="text-sm text-gray-600 leading-relaxed">
-              Passer de la théorie à la pratique avec des implémentations complètes, des architectures de sécurité et des scripts prêts au déploiement.
-            </p>
-          </div>
-
-          <div class="space-y-3">
-            <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-              3
-            </div>
-            <h3 class="font-bold text-gray-900 text-lg">Skills Réutilisables</h3>
-            <p class="text-sm text-gray-600 leading-relaxed">
-              Méthodes pas-à-pas, matrices de prompts et compétences clés pour transformer l'intelligence artificielle en partenaire de réflexion.
-            </p>
-          </div>
+          <p class="text-xs text-gray-400 pt-2">
+            Zéro spam. Désabonnement en 1 clic à tout moment. Respect de la vie privée.
+          </p>
 
         </div>
       </div>
     </section>
 
-    <!-- Newsletter CTA -->
-    <NewsletterBox />
   </div>
 </template>
