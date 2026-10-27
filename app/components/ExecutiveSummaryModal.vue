@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { FileText, X, CheckCircle2, AlertTriangle, Sparkles, Copy, Check } from 'lucide-vue-next'
-import type { ExecutiveSummaryPoint } from '~/data/posts'
+import type { ExecutiveSummaryPoint } from '~/types/post'
 
 const props = defineProps<{
   summary: ExecutiveSummaryPoint[]

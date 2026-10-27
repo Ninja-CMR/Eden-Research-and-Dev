@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Clock, ArrowRight, Code, Sparkles, BookOpen } from 'lucide-vue-next'
-import type { Post } from '~/data/posts'
+import type { Post } from '~/types/post'
 
 const props = defineProps<{
   post: Post
@@ -36,7 +36,7 @@ const getTypeIcon = (type: string) => {
 <template>
   <article class="keyword-card group flex flex-col bg-white border border-gray-100 hover:border-gray-200 shadow-xs overflow-hidden">
     <!-- Card Image with Google-style pill mask -->
-    <NuxtLink :to="`/posts/${post.slug}`" class="block relative aspect-[16/10] overflow-hidden bg-gray-100 m-3 rounded-2xl">
+    <NuxtLink :to="post.path || `/posts/${post.slug}`" class="block relative aspect-[16/10] overflow-hidden bg-gray-100 m-3 rounded-2xl">
       <img 
         :src="post.coverImage" 
         :alt="post.title"
@@ -62,7 +62,7 @@ const getTypeIcon = (type: string) => {
         </div>
 
         <h3 class="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug mb-2">
-          <NuxtLink :to="`/posts/${post.slug}`">
+          <NuxtLink :to="post.path || `/posts/${post.slug}`">
             {{ post.title }}
           </NuxtLink>
         </h3>
@@ -86,7 +86,7 @@ const getTypeIcon = (type: string) => {
         </div>
 
         <NuxtLink 
-          :to="`/posts/${post.slug}`"
+          :to="post.path || `/posts/${post.slug}`"
           class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform"
         >
           <span>Lire</span>
