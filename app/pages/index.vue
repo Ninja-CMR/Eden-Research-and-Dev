@@ -22,10 +22,11 @@ const { data: posts } = await useAsyncData('home-posts', () => {
   return queryCollection('posts').all()
 })
 
-// Featured hero post (default to entrepreneurship post or AI education)
+// Featured hero post (priorité au nouvel article IA agentique ou entrepreneuriat)
 const heroPost = computed(() => {
   if (!posts.value || posts.value.length === 0) return null
   return (
+    posts.value.find(p => p.slug === 'ia-agentique-entreprises-afrique-cameroun-resultat-vs-outils') ||
     posts.value.find(p => p.slug === 'creer-entreprise-cameroun-afrique-defis-fondations') ||
     posts.value.find(p => p.slug === 'intelligence-artificielle-milieu-scolaire') ||
     posts.value[0]
